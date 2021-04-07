@@ -174,5 +174,5 @@ async def gitpull(ctx, mode = "-a"):
 
 
 
-client.run(stuff)
+client.run(token)
 

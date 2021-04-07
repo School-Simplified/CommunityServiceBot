@@ -22,6 +22,8 @@ import textwrap
 from PIL import Image
 from PIL import ImageDraw, ImageFont
 from core.PDF_Functions import *
+import os.path
+from os import path
 
 config, _ = load_config()
 
@@ -107,7 +109,11 @@ class CogCMD(commands.Cog):
         embed = discord.Embed(title = "READ CAREFULLY!", description = "You are about to fill out a **COMMUNITY SERVICE HOURS FORM**, please make sure you actually answer the question in the best, detailed way possible! A PDF will be generated based on your **exact** responses so triple-check responses before you submit!\n**If you did make a mistake, you will be able to cancel the form and start over!**", color = 0xeb8334)
         embed.set_footer(text = "Starting questions now...")
 
-        await channel.send(embed = embed)
+        try:
+            await channel.send(embed = embed)
+        except:
+            await ctx.send("Uh oh, it looks like I can't DM you! Please check your privacy settings!")
+            return
 
         def check(m):
             return m.content is not None and m.channel == channel and m.author is not self.bot.user
@@ -281,6 +287,38 @@ class CogCMD(commands.Cog):
 
         embed.add_field(name = "Q15-Does your organization/college require an adult supervisors information?", value = F_needAdultInfo.content)
         await channel2.send(embed = embed)
+
+
+    @commands.command()
+    async def findPDF(self, ctx, *, query):
+        V1 = path.exists(f"PDF/rec-{query}.pdf")
+        V2 = path.exists(f"PDF/rec2-{query}.pdf")
+        print(V1, V2)
+
+        embed = discord.Embed(title = "PDF Query", description = f"Query Results for **{query}**" ,color = 0x34eb71)
+        if V1 == True:
+            embed.add_field(name = "UnSigned PDF Found!", value = f"`os.path` has found `rec-{query}.pdf`")
+        else:
+            embed.add_field(name = "UnSigned PDF NOT FOUND!", value = f"`os.path` has **NOT** found `rec-{query}.pdf`")
+
+        if V2 == True:
+            embed.add_field(name = "UnSigned PDF Found!", value = f"`os.path` has found `rec-{query}.pdf`", inline = False)
+        else:
+            embed.add_field(name = "UnSigned PDF NOT FOUND!", value = f"`os.path` has **NOT** found `rec-{query}.pdf`")
+        
+        embed.add_field(name = "PDF Keys", value = "**rec-DiscID.pdf** > Unsigned PDF's.\n\n**rec2-DiscID.pdf** > Signed PDF's.")
+        embed.set_footer(text = "Below attached are your PDFs!")
+        await ctx.send(embed = embed)
+
+
+        if V1 == True:
+            await ctx.send(file=discord.File(fr"PDF/rec-{query}.pdf"))
+
+        if V2 == True:
+            await ctx.send(file=discord.File(fr"PDF/rec2-{query}.pdf"))
+        
+        
+
 
         
 
